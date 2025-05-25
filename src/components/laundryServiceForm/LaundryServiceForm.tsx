@@ -11,8 +11,8 @@ interface Package {
   name: string;
   description: string;
   price: number;
-  category: string;
-  features: string[];
+  turnaround: string;
+  image: string;
 }
 
 export default function LaundryServiceForm() {
@@ -39,9 +39,7 @@ export default function LaundryServiceForm() {
     const fetchPackages = async () => {
       try {
         const response = await getPackages();
-        if (response.success) {
-          setPackages(response.data);
-        }
+        setPackages(response);
       } catch (error) {
         console.error('Error fetching packages:', error);
       }
@@ -94,17 +92,10 @@ export default function LaundryServiceForm() {
         customerEmail: formData.customerEmail || 'guest@example.com',
         customerPhone: formData.customerPhone,
         customerAddress: formData.customerAddress,
-        items: [
-          {
-            package: formData.selectedPackage,
-            quantity: formData.quantity,
-            price: selectedPackage?.price || 0
-          }
-        ],
-        notes: formData.notes,
+        packageId: formData.selectedPackage,
+        total: selectedPackage?.price || 0,
         pickupDate: formData.pickupDate,
-        preferredTime: formData.preferredTime,
-        sendToWhatsApp: sendToWhatsApp
+        preferredTime: formData.preferredTime
       };
       
       // Submit order to API

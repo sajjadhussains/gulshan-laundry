@@ -1,7 +1,35 @@
 'use client';
 
+import { env, currentEnv } from '../config/env';
+
+// Types
+export interface Package {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  turnaround: string;
+  image: string;
+}
+
+export interface Order {
+  id: string;
+  customerName: string;
+  packageId: string;
+  status: string;
+  date: string;
+  total: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
 // Mock data for packages
-const mockPackages = [
+const mockPackages: Package[] = [
   {
     id: '1',
     name: 'Basic Laundry',
@@ -29,7 +57,7 @@ const mockPackages = [
 ];
 
 // Mock data for orders
-const mockOrders = [
+const mockOrders: Order[] = [
   {
     id: '1001',
     customerName: 'John Doe',
@@ -48,104 +76,174 @@ const mockOrders = [
   }
 ];
 
-// Package API (mock implementations)
-export const getPackages = async () => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockPackages;
-};
+// API Client
+class ApiClient {
+  private baseUrl: string;
+  private defaultHeaders: HeadersInit;
 
-export const createPackage = async (packageData: any) => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newPackage = {
-    id: `${Date.now()}`,
-    ...packageData
-  };
-  return newPackage;
-};
-
-export const updatePackage = async (packageId: string, packageData: any) => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return {
-    id: packageId,
-    ...packageData
-  };
-};
-
-// Order API (mock implementations)
-export const submitOrder = async (orderData: any) => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  const newOrder = {
-    id: `${Date.now()}`,
-    date: new Date().toISOString(),
-    status: 'pending',
-    ...orderData
-  };
-  return {
-    success: true,
-    message: 'Order submitted successfully',
-    order: newOrder
-  };
-};
-
-export const getOrders = async () => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockOrders;
-};
-
-export const updateOrderStatus = async (orderId: string, status: string) => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return {
-    success: true,
-    message: `Order ${orderId} status updated to ${status}`
-  };
-};
-
-// Admin API (mock implementations)
-export const adminLogin = async (email: string, password: string) => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  // Simple validation for demo purposes
-  if (email === 'admin@example.com' && password === 'password123') {
-    return {
-      success: true,
-      token: 'mock-jwt-token',
-      user: {
-        id: '1',
-        name: 'Admin User',
-        email: 'admin@example.com',
-        role: 'admin'
-      }
+  constructor() {
+    this.baseUrl = env.apiUrl;
+    this.defaultHeaders = {
+      'Content-Type': 'application/json',
     };
-  } else {
-    throw new Error('Invalid credentials');
+    
+    console.log(`API Client initialized in ${currentEnv} environment`);
   }
-};
 
-export const verifyAdminToken = async () => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  // Always return valid for demo purposes
-  return {
-    valid: true,
-    user: {
-      id: '1',
-      name: 'Admin User',
-      email: 'admin@example.com',
-      role: 'admin'
+  // Add authorization header if token exists
+  private getHeaders(additionalHeaders?: HeadersInit): HeadersInit {
+    const headers: Record<string, string> = { ...this.defaultHeaders as Record<string, string> };
+    
+    // Get token from localStorage if we're in the browser
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
     }
-  };
+    
+    return { ...headers, ...additionalHeaders };
+  }
+
+  // Generic request method
+  private async request<T>(
+    method: string,
+    endpoint: string,
+    data?: any,
+    headers?: HeadersInit
+  ): Promise<T> {
+    // In development/preview, use mock data
+    if (currentEnv !== 'production' && process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
+      return this.mockRequest<T>(method, endpoint, data);
+    }
+    
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: this.getHeaders(headers),
+        body: data ? JSON.stringify(data) : undefined,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error(`API ${method} request to ${endpoint} failed:`, error);
+      throw error;
+    }
+  }
+  
+  // Mock request implementation for development
+  private async mockRequest<T>(method: string, endpoint: string, data?: any): Promise<T> {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Mock responses based on endpoint and method
+    if (endpoint.includes('/packages')) {
+      if (method === 'GET') return mockPackages as unknown as T;
+      if (method === 'POST') {
+        return {
+          success: true,
+          data: { id: `${Date.now()}`, ...data },
+          message: 'Package created successfully'
+        } as unknown as T;
+      }
+    }
+    
+    if (endpoint.includes('/orders')) {
+      if (method === 'GET') return mockOrders as unknown as T;
+      if (method === 'POST') {
+        return {
+          success: true,
+          data: { id: `${Date.now()}`, date: new Date().toISOString(), status: 'pending', ...data },
+          message: 'Order submitted successfully'
+        } as unknown as T;
+      }
+    }
+    
+    // Default mock response
+    return { success: true, data: {} } as unknown as T;
+  }
+
+  // HTTP methods
+  async get<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
+    return this.request<T>('GET', endpoint, undefined, headers);
+  }
+
+  async post<T>(endpoint: string, data: any, headers?: HeadersInit): Promise<T> {
+    return this.request<T>('POST', endpoint, data, headers);
+  }
+
+  async put<T>(endpoint: string, data: any, headers?: HeadersInit): Promise<T> {
+    return this.request<T>('PUT', endpoint, data, headers);
+  }
+
+  async delete<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
+    return this.request<T>('DELETE', endpoint, undefined, headers);
+  }
+}
+
+// Create and export API client instance
+const apiClient = new ApiClient();
+export default apiClient;
+
+// Package API
+export const getPackages = async (): Promise<Package[]> => {
+  return apiClient.get<Package[]>('/packages');
 };
 
-// No need for axios instance anymore
-export default {
-  get: async () => ({}),
-  post: async () => ({}),
-  put: async () => ({}),
-  delete: async () => ({})
+export const createPackage = async (packageData: Omit<Package, 'id'>): Promise<Package> => {
+  return apiClient.post<Package>('/packages', packageData);
+};
+
+export const updatePackage = async (packageId: string, packageData: Partial<Package>): Promise<Package> => {
+  return apiClient.put<Package>(`/packages/${packageId}`, packageData);
+};
+
+// Order API
+export const submitOrder = async (orderData: Omit<Order, 'id' | 'date' | 'status'>): Promise<ApiResponse<Order>> => {
+  return apiClient.post<ApiResponse<Order>>('/orders', orderData);
+};
+
+export const getOrders = async (): Promise<Order[]> => {
+  return apiClient.get<Order[]>('/orders');
+};
+
+export const updateOrderStatus = async (orderId: string, status: string): Promise<ApiResponse<null>> => {
+  return apiClient.put<ApiResponse<null>>(`/orders/${orderId}/status`, { status });
+};
+
+// Admin API
+export const adminLogin = async (email: string, password: string): Promise<ApiResponse<{ token: string; user: any }>> => {
+  // For development/preview environments, use mock implementation
+  if (currentEnv !== 'production' && process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    if (email === 'admin@example.com' && password === 'password123') {
+      return {
+        success: true,
+        data: {
+          token: 'mock-jwt-token',
+          user: {
+            id: '1',
+            name: 'Admin User',
+            email: 'admin@example.com',
+            role: 'admin'
+          }
+        }
+      };
+    } else {
+      throw new Error('Invalid credentials');
+    }
+  }
+  
+  return apiClient.post<ApiResponse<{ token: string; user: any }>>('/admin/login', { email, password });
+};
+
+export const verifyAdminToken = async (): Promise<ApiResponse<{ valid: boolean; user: any }>> => {
+  return apiClient.get<ApiResponse<{ valid: boolean; user: any }>>('/admin/verify');
 };

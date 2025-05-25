@@ -31,7 +31,50 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is set up with an automated CI/CD pipeline that deploys to Vercel on every push to the main branch.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# gulshan-laundry
+### CI/CD Pipeline
+
+The CI/CD pipeline is configured using GitHub Actions and includes the following steps:
+
+1. **Validation**: Checks that all required Vercel secrets are set up correctly
+2. **Linting**: Runs ESLint to ensure code quality
+3. **Building**: Builds the Next.js application
+4. **Testing**: Runs Jest tests (commented out by default, uncomment in workflow file when tests are added)
+5. **Deployment**: Automatically deploys to Vercel
+
+### Required Secrets
+
+To use the CI/CD pipeline, you need to set up the following secrets in your GitHub repository:
+
+- `VERCEL_TOKEN`: Your Vercel API token
+- `VERCEL_ORG_ID`: Your Vercel organization ID
+- `VERCEL_PROJECT_ID`: Your Vercel project ID
+
+### Running Tests Locally
+
+```bash
+# Run tests once
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+### Manual Deployment
+
+You can also deploy manually using the Vercel CLI:
+
+```bash
+npm i -g vercel
+vercel login
+vercel
+```
+
+For production deployment:
+
+```bash
+vercel --prod
+```
+
+Check out [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
