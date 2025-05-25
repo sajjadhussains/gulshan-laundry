@@ -40,10 +40,12 @@ export default function PromiseSection() {
 
         {/* Right side - Image only */}
         <div className="w-full md:w-1/2 h-[400px] md:h-full right-image-container">
-          <img 
+          <Image 
             src="/women.png" 
             alt="Woman with laundry baskets in a laundromat"
+            fill
             className="w-full h-full object-cover object-center"
+            priority
           />
         </div>
       </div>

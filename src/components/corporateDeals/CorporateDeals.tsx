@@ -15,7 +15,7 @@ export default function CorporateDeals() {
                 Corporate Deals for Businesses
               </h2>
               <p className="text-sm sm:text-base text-gray-600">
-                We provide specialized laundry services for businesses of all sizes. Get custom solutions tailored to your company's needs.
+                We provide specialized laundry services for businesses of all sizes. Get custom solutions tailored to your company&apos;s needs.
               </p>
             </div>
 

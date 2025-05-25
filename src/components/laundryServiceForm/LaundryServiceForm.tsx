@@ -141,14 +141,14 @@ export default function LaundryServiceForm() {
                 Schedule Your Pickup
               </h2>
               <p className="text-sm sm:text-base text-gray-600">
-                Fill out the form below and we'll pick up your laundry at your convenience
+                Fill out the form below and we&apos;ll pick up your laundry at your convenience
               </p>
             </div>
 
             {success && (
               <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
                 <strong className="font-bold">Success!</strong>
-                <span className="block sm:inline"> Your order has been placed successfully. We'll contact you shortly.</span>
+                <span className="block sm:inline"> Your order has been placed successfully. We&apos;ll contact you shortly.</span>
               </div>
             )}
 

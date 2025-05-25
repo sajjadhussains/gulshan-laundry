@@ -109,7 +109,7 @@ class ApiClient {
   private async request<T>(
     method: string,
     endpoint: string,
-    data?: any,
+    data?: unknown,
     headers?: HeadersInit
   ): Promise<T> {
     // In development/preview, use mock data
@@ -139,7 +139,7 @@ class ApiClient {
   }
   
   // Mock request implementation for development
-  private async mockRequest<T>(method: string, endpoint: string, data?: any): Promise<T> {
+  private async mockRequest<T>(method: string, endpoint: string, data?: unknown): Promise<T> {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
@@ -147,9 +147,13 @@ class ApiClient {
     if (endpoint.includes('/packages')) {
       if (method === 'GET') return mockPackages as unknown as T;
       if (method === 'POST') {
+        let dataObj = {};
+        if (data && typeof data === 'object' && !Array.isArray(data)) {
+          dataObj = { ...data };
+        }
         return {
           success: true,
-          data: { id: `${Date.now()}`, ...data },
+          data: { id: `${Date.now()}`, ...dataObj },
           message: 'Package created successfully'
         } as unknown as T;
       }
@@ -158,9 +162,13 @@ class ApiClient {
     if (endpoint.includes('/orders')) {
       if (method === 'GET') return mockOrders as unknown as T;
       if (method === 'POST') {
+        let dataObj = {};
+        if (data && typeof data === 'object' && !Array.isArray(data)) {
+          dataObj = { ...data };
+        }
         return {
           success: true,
-          data: { id: `${Date.now()}`, date: new Date().toISOString(), status: 'pending', ...data },
+          data: { id: `${Date.now()}`, date: new Date().toISOString(), status: 'pending', ...dataObj },
           message: 'Order submitted successfully'
         } as unknown as T;
       }
@@ -175,11 +183,11 @@ class ApiClient {
     return this.request<T>('GET', endpoint, undefined, headers);
   }
 
-  async post<T>(endpoint: string, data: any, headers?: HeadersInit): Promise<T> {
+  async post<T>(endpoint: string, data: unknown, headers?: HeadersInit): Promise<T> {
     return this.request<T>('POST', endpoint, data, headers);
   }
 
-  async put<T>(endpoint: string, data: any, headers?: HeadersInit): Promise<T> {
+  async put<T>(endpoint: string, data: unknown, headers?: HeadersInit): Promise<T> {
     return this.request<T>('PUT', endpoint, data, headers);
   }
 
@@ -219,7 +227,7 @@ export const updateOrderStatus = async (orderId: string, status: string): Promis
 };
 
 // Admin API
-export const adminLogin = async (email: string, password: string): Promise<ApiResponse<{ token: string; user: any }>> => {
+export const adminLogin = async (email: string, password: string): Promise<ApiResponse<{ token: string; user: unknown }>> => {
   // For development/preview environments, use mock implementation
   if (currentEnv !== 'production' && process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -241,9 +249,9 @@ export const adminLogin = async (email: string, password: string): Promise<ApiRe
     }
   }
   
-  return apiClient.post<ApiResponse<{ token: string; user: any }>>('/admin/login', { email, password });
+  return apiClient.post<ApiResponse<{ token: string; user: unknown }>>('/admin/login', { email, password });
 };
 
-export const verifyAdminToken = async (): Promise<ApiResponse<{ valid: boolean; user: any }>> => {
-  return apiClient.get<ApiResponse<{ valid: boolean; user: any }>>('/admin/verify');
+export const verifyAdminToken = async (): Promise<ApiResponse<{ valid: boolean; user: unknown }>> => {
+  return apiClient.get<ApiResponse<{ valid: boolean; user: unknown }>>('/admin/verify');
 };
