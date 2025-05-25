@@ -1,0 +1,97 @@
+.hero-background {
+    background-image: url('/laundry-bg.png');
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, #032B56 0%, rgba(7, 94, 188, 0) 100%);
+    z-index: 1;
+}
+
+/* Responsive heights for different devices */
+@media (min-width: 1280px) {
+    .hero-background {
+        height: 769px; /* Exact height for desktop/larger devices */
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+    .hero-background {
+        height: 700px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hero-background {
+        height: 650px;
+    }
+}
+
+@media (max-width: 767px) {
+    .hero-background {
+        height: 580px;
+        background-position: 65% center; /* Adjust background position for mobile */
+    }
+}
+
+/* Form positioning styles */
+.hero-form-container {
+    position: relative;
+    margin-top: -120px; /* Adjust this value to control how much the form overlaps */
+}
+
+@media (max-width: 767px) {
+    .hero-form-container {
+        margin-top: -80px;
+    }
+}
+
+/* Custom form width for 1280px container */
+.form-width-custom {
+    width: 100%;
+    max-width: 801px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Ensure text colors match exactly */
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content h1,
+.hero-content p.service-title {
+    color: #FFFFFF !important;
+}
+
+.hero-content p.subtitle {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Button styling to match design */
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: transparent !important;
+    border: 1px solid #FFFFFF !important;
+    color: #FFFFFF !important;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.hero-background .cta-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}

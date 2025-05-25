@@ -1,0 +1,83 @@
+.promise-section {
+    position: relative;
+    overflow: hidden;
+    min-height: 600px;
+}
+
+.promise-section > div {
+    min-height: 600px;
+}
+
+.promise-bg-container {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.promise-bg-image {
+    object-fit: contain;
+    object-position: left bottom;
+    pointer-events: none;
+}
+
+.right-image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+@media (max-width: 1280px) {
+    .promise-section {
+        min-height: 550px;
+    }
+    
+    .promise-section > div {
+        min-height: 550px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .promise-section {
+        min-height: 500px;
+    }
+    
+    .promise-section > div {
+        min-height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .promise-section {
+        min-height: auto;
+    }
+    
+    .promise-section > div {
+        min-height: auto;
+        flex-direction: column;
+    }
+    
+    .promise-bg-container {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .promise-bg-image {
+        object-position: center bottom;
+    }
+}
+
+@media (max-width: 640px) {
+    .right-image-container {
+        height: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    .right-image-container {
+        height: 300px;
+    }
+}
